@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@qagent/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),
+      '@qagent/shared': path.resolve(__dirname, './src/shared/index.ts'),
     },
   },
   server: {

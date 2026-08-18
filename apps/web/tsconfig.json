@@ -17,8 +17,8 @@
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@qagent/shared": ["../../packages/shared/src/index.ts"]
+      "@qagent/shared": ["./src/shared/index.ts"]
     }
   },
-  "include": ["src", "../../packages/shared/src"]
+  "include": ["src"]
 }

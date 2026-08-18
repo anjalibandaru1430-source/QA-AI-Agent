@@ -40,7 +40,7 @@ export class EmailService {
         <div>
           <h3 style="color: #cbd5e1; font-size: 15px; margin-bottom: 8px;">AI Recommendations</h3>
           <ul style="color: #94a3b8; font-size: 13px; line-height: 1.5; padding-left: 20px; margin: 0;">
-            ${report.recommendations.map((r) => `<li>${r}</li>`).join('')}
+            ${report.recommendations.map((r: string) => `<li>${r}</li>`).join('')}
           </ul>
         </div>
       </div>

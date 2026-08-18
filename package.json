@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:web\"",
-    "dev:server": "npm run dev --workspace=apps/server",
-    "dev:web": "npm run dev --workspace=apps/web",
-    "build": "npm run build --workspace=packages/shared && npm run build --workspace=apps/server && npm run build --workspace=apps/web",
+    "dev:server": "npm run dev --prefix apps/server",
+    "dev:web": "npm run dev --prefix apps/web",
+    "build": "npm run build --prefix packages/shared && npm run build --prefix apps/web",
     "start": "node apps/server/dist/app.js",
     "typecheck": "npm run typecheck --workspaces --if-present"
   },

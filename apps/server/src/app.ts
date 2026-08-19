@@ -38,9 +38,16 @@ app.get('/health', (req, res) => {
 });
 
 // Check for built frontend dist directory
+const rootDistPath = path.resolve(process.cwd(), 'dist');
 const webDistPath = path.resolve(process.cwd(), 'apps/web/dist');
-const altWebDistPath = path.resolve(__dirname, '../../web/dist');
-const finalWebDist = fs.existsSync(webDistPath) ? webDistPath : fs.existsSync(altWebDistPath) ? altWebDistPath : null;
+const altWebDistPath = path.resolve(__dirname, '../../../dist');
+const finalWebDist = fs.existsSync(rootDistPath)
+  ? rootDistPath
+  : fs.existsSync(webDistPath)
+  ? webDistPath
+  : fs.existsSync(altWebDistPath)
+  ? altWebDistPath
+  : null;
 
 if (finalWebDist) {
   // Serve static assets from built React frontend

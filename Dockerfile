@@ -3,20 +3,21 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy root and package descriptors
+# Copy package files
 COPY package*.json ./
 COPY packages/shared/package*.json ./packages/shared/
 COPY apps/server/package*.json ./apps/server/
-COPY apps/web/package*.json ./apps/web/
 
 # Install dependencies
 RUN npm install
+RUN cd apps/server && npm install
 
 # Copy source files
 COPY . .
 
-# Build all packages (shared -> server -> web)
+# Build frontend and backend
 RUN npm run build
+RUN cd apps/server && npm run build
 
 # Production runtime stage
 FROM node:20-alpine AS runner
@@ -28,10 +29,10 @@ ENV PORT=4000
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/packages/shared ./packages/shared
 COPY --from=builder /app/apps/server ./apps/server
-COPY --from=builder /app/apps/web/dist ./apps/web/dist
 
 EXPOSE 4000
 
-CMD ["npm", "start"]
+CMD ["node", "apps/server/dist/app.js"]

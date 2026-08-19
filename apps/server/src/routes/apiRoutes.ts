@@ -175,14 +175,14 @@ apiRouter.post('/projects/:id/prd/sample', (req: Request, res: Response) => {
   res.json({ prd });
 });
 
-apiRouter.post('/projects/:id/prd/analyze', async (req: Request, res: Response) => {
+apiRouter.post(['/projects/:id/prd/analyze', '/projects/:id/analyze'], async (req: Request, res: Response) => {
   const projectId = getParam(req.params.id);
   const { content } = req.body;
 
   const prdText = content || SAUCE_DEMO_PRD_TEXT;
-  const result = await requirementAgent.analyzePRD(projectId, prdText);
+  const requirements = await requirementAgent.analyzePRD(projectId, prdText);
 
-  res.json(result);
+  res.json({ success: true, requirements });
 });
 
 apiRouter.get('/projects/:id/requirements', (req: Request, res: Response) => {

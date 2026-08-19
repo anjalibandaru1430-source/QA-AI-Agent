@@ -1,5 +1,4 @@
 import { Requirement, PRDDocument } from '../shared/index.js';
-import { RequirementAnalysisResponseSchema } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 
@@ -7,19 +6,16 @@ export class RequirementAgent {
   public async analyzePRD(projectId: string, prdContent: string): Promise<Requirement[]> {
     wsServer.broadcast('ai.agent.started', {
       agentType: 'RequirementAgent',
-      message: 'RequirementAgent started analyzing PRD document...',
+      message: 'RequirementAgent analyzing custom PRD document...',
     });
 
-    const existingReqs = db.requirements.get(projectId) || [];
-
-    // Simulate realistic AI streaming processing milestones
     wsServer.broadcast('ai.agent.progress', {
       agentType: 'RequirementAgent',
       progress: 25,
       currentTask: 'Document parsed & domain taxonomy identified',
     });
 
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 300));
 
     wsServer.broadcast('ai.agent.progress', {
       agentType: 'RequirementAgent',
@@ -27,7 +23,7 @@ export class RequirementAgent {
       currentTask: 'Extracting user stories & acceptance criteria',
     });
 
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 300));
 
     wsServer.broadcast('ai.agent.progress', {
       agentType: 'RequirementAgent',
@@ -35,62 +31,115 @@ export class RequirementAgent {
       currentTask: 'Calculating risk ratings and tagging security boundaries',
     });
 
-    // If existing requirements exist for this project, refresh and return them
-    if (existingReqs.length > 0) {
-      wsServer.broadcast('ai.agent.completed', {
-        agentType: 'RequirementAgent',
-        message: `Extracted ${existingReqs.length} requirements successfully.`,
-        requirementsCount: existingReqs.length,
-      });
-      return existingReqs;
+    // Parse dynamically from prdContent
+    const extractedReqs: Requirement[] = [];
+    const lines = prdContent.split('\n');
+    let currentReq: Partial<Requirement> | null = null;
+    let criteriaList: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+
+      // Detect Requirement header (e.g. ### REQ-001: Title, or ### 1. Title, or ## REQ-001)
+      const reqMatch = line.match(/^#{2,4}\s*(REQ-?\d+|Requirement\s*\d+|\d+\.)?[:\s]*(.*)/i);
+      const isReqHeader = reqMatch && (line.includes('REQ-') || line.includes('###') || line.toLowerCase().includes('requirement'));
+
+      if (isReqHeader && reqMatch[2] && reqMatch[2].trim().length > 3) {
+        if (currentReq && currentReq.title) {
+          extractedReqs.push({
+            id: currentReq.id || `req_${Date.now()}_${extractedReqs.length + 1}`,
+            projectId,
+            reqCode: currentReq.reqCode || `REQ-${String(extractedReqs.length + 1).padStart(3, '0')}`,
+            title: currentReq.title,
+            category: currentReq.category || 'Core Feature',
+            userStory: currentReq.userStory || `As a user, I want ${currentReq.title} to function reliably.`,
+            acceptanceCriteria: criteriaList.length > 0 ? criteriaList : ['Must satisfy all specified acceptance criteria.'],
+            priority: (currentReq.priority as any) || 'high',
+            riskLevel: (currentReq.riskLevel as any) || 'medium',
+            tags: currentReq.tags || ['automated', 'ai-generated'],
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        const rawCodeMatch = line.match(/REQ-?\d+/i);
+        const reqCode = rawCodeMatch ? rawCodeMatch[0].toUpperCase() : `REQ-${String(extractedReqs.length + 1).padStart(3, '0')}`;
+        const title = reqMatch[2].replace(/^REQ-?\d+[:\s-]*/i, '').trim();
+
+        // Categorize based on keywords in title
+        let category = 'General';
+        let priority: 'critical' | 'high' | 'medium' | 'low' = 'high';
+        let riskLevel: 'critical' | 'high' | 'medium' | 'low' = 'medium';
+        const lowerTitle = title.toLowerCase();
+
+        if (lowerTitle.includes('auth') || lowerTitle.includes('login') || lowerTitle.includes('security') || lowerTitle.includes('2fa') || lowerTitle.includes('biometric')) {
+          category = 'Authentication';
+          priority = 'critical';
+          riskLevel = 'high';
+        } else if (lowerTitle.includes('wire') || lowerTitle.includes('transfer') || lowerTitle.includes('payment') || lowerTitle.includes('checkout') || lowerTitle.includes('card')) {
+          category = 'Payments & Transfers';
+          priority = 'critical';
+          riskLevel = 'critical';
+        } else if (lowerTitle.includes('cart') || lowerTitle.includes('discount') || lowerTitle.includes('promo') || lowerTitle.includes('tax') || lowerTitle.includes('calc')) {
+          category = 'Arithmetic & Cart';
+          priority = 'high';
+          riskLevel = 'high';
+        } else if (lowerTitle.includes('catalog') || lowerTitle.includes('filter') || lowerTitle.includes('sort')) {
+          category = 'Catalog';
+          priority = 'medium';
+          riskLevel = 'low';
+        }
+
+        currentReq = {
+          id: `req_${Date.now()}_${extractedReqs.length + 1}`,
+          reqCode,
+          title,
+          category,
+          priority,
+          riskLevel,
+          tags: [category.toLowerCase().replace(/[^a-z0-9]/g, '-'), 'ai-analyzed'],
+        };
+        criteriaList = [];
+      } else if (line.toLowerCase().includes('user story:')) {
+        if (currentReq) {
+          currentReq.userStory = line.replace(/.*user story:\s*/i, '').replace(/[*_"]/g, '').trim();
+        }
+      } else if (line.match(/^[-*•]\s+/) || line.match(/^\d+\.\s+/)) {
+        // Bullet point acceptance criteria
+        const cleaned = line.replace(/^[-*•\d.]+\s*/, '').replace(/[*_`]/g, '').trim();
+        if (cleaned.length > 5 && !cleaned.toLowerCase().includes('acceptance criteria')) {
+          criteriaList.push(cleaned);
+        }
+      }
     }
 
-    // Default synthesized requirements if none seeded
-    const newReqs: Requirement[] = [
-      {
-        id: `req_${Date.now()}_1`,
+    // Push the final requirement
+    if (currentReq && currentReq.title) {
+      extractedReqs.push({
+        id: currentReq.id || `req_${Date.now()}_${extractedReqs.length + 1}`,
         projectId,
-        reqCode: 'REQ-001',
-        title: 'User Authentication & Access Control',
-        category: 'Authentication',
-        userStory: 'As a customer, I want to log in with valid credentials to securely access my account.',
-        acceptanceCriteria: [
-          'Valid standard_user / secret_sauce redirects to /inventory.html within 2s',
-          'Empty username or password shows inline validation banner',
-          'Locked out users receive "Epic sadface: Sorry, this user has been locked out."',
-        ],
-        priority: 'critical',
-        riskLevel: 'high',
-        tags: ['auth', 'security', 'smoke'],
+        reqCode: currentReq.reqCode || `REQ-${String(extractedReqs.length + 1).padStart(3, '0')}`,
+        title: currentReq.title,
+        category: currentReq.category || 'Core Feature',
+        userStory: currentReq.userStory || `As a user, I want ${currentReq.title} to function reliably.`,
+        acceptanceCriteria: criteriaList.length > 0 ? criteriaList : ['Must satisfy all specified acceptance criteria.'],
+        priority: (currentReq.priority as any) || 'high',
+        riskLevel: (currentReq.riskLevel as any) || 'medium',
+        tags: currentReq.tags || ['automated', 'ai-generated'],
         createdAt: new Date().toISOString(),
-      },
-      {
-        id: `req_${Date.now()}_2`,
-        projectId,
-        reqCode: 'REQ-002',
-        title: 'Catalog Browsing & Sorting',
-        category: 'Catalog',
-        userStory: 'As a shopper, I want to sort items by price and name to easily find products.',
-        acceptanceCriteria: [
-          'Inventory page displays 6 items with images and prices',
-          'Sorts A-Z, Z-A, Price low-to-high, and Price high-to-low sort correctly',
-        ],
-        priority: 'high',
-        riskLevel: 'medium',
-        tags: ['catalog', 'sorting'],
-        createdAt: new Date().toISOString(),
-      },
-    ];
+      });
+    }
 
-    db.requirements.set(projectId, newReqs);
+    const finalReqs = extractedReqs.length > 0 ? extractedReqs : db.requirements.get(projectId) || [];
+
+    db.requirements.set(projectId, finalReqs);
 
     wsServer.broadcast('ai.agent.completed', {
       agentType: 'RequirementAgent',
-      message: `Extracted ${newReqs.length} requirements successfully.`,
-      requirementsCount: newReqs.length,
+      message: `Extracted ${finalReqs.length} dynamic requirements from document.`,
+      requirementsCount: finalReqs.length,
     });
 
-    return newReqs;
+    return finalReqs;
   }
 }
 

@@ -1,42 +1,52 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { Layers, Eye, EyeOff, Lock, Mail, ArrowRight, GitBranch } from 'lucide-react';
+import { Layers, Eye, EyeOff, Lock, Mail, ArrowRight, GitBranch, UserCheck } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { useNotificationStore } from '../../stores/useNotificationStore';
+import { useUserStore } from '../../stores/useUserStore';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { addNotification } = useNotificationStore();
+  const { currentUser, login } = useUserStore();
 
-  const [email, setEmail] = useState('alex.vance@qagent.io');
-  const [password, setPassword] = useState('••••••••••••');
+  const [email, setEmail] = useState(currentUser?.email || '');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) return;
+
     setIsLoading(true);
 
     setTimeout(() => {
+      login(email);
       setIsLoading(false);
+
+      const localName = email.split('@')[0].replace(/[._\d-]+/g, ' ');
+      const formattedName = localName.charAt(0).toUpperCase() + localName.slice(1);
+
       addNotification({
         type: 'success',
-        title: 'Welcome Back, Alex',
-        message: 'Authenticated as QA Lead on QAgent Platform.',
+        title: `Welcome, ${formattedName}!`,
+        message: 'Successfully authenticated to QAgent Platform.',
       });
       navigate('/projects/proj_saucedemo_001/dashboard');
-    }, 600);
+    }, 450);
   };
 
-  const handleQuickDemoFill = () => {
-    setEmail('alex.vance@qagent.io');
+  const handleQuickDemoFill = (demoEmail = 'anjalibandaru1430@gmail.com') => {
+    setEmail(demoEmail);
     setPassword('secret_qa_pass_2026');
+    login(demoEmail, 'Anjali Bandaru');
     addNotification({
       type: 'info',
-      title: 'Demo Credentials Applied',
-      message: 'Logged in as QA Lead (Alex Vance).',
+      title: 'Welcome, Anjali Bandaru',
+      message: 'Signed in as QA Lead.',
     });
     navigate('/projects/proj_saucedemo_001/dashboard');
   };
@@ -69,7 +79,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
+                placeholder="your.name@company.com"
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
               />
             </div>
@@ -78,9 +88,7 @@ export const LoginPage: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-medium text-slate-300">Password</label>
-              <a href="#forgot" onClick={(e) => { e.preventDefault(); alert('In demo mode, please use 1-Click Demo Login.'); }} className="text-[11px] text-emerald-400 hover:underline">
-                Forgot password?
-              </a>
+              <span className="text-[11px] text-emerald-400">Any password accepted for testing</span>
             </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -89,7 +97,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
+                placeholder="Enter password..."
                 className="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
               />
               <button
@@ -122,26 +130,26 @@ export const LoginPage: React.FC = () => {
             className="w-full mt-2"
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            Sign In
+            Sign In with My Account
           </Button>
         </form>
 
-        {/* 1-Click Demo Sign-In */}
+        {/* 1-Click Fast Sign-In */}
         <div className="mt-5 pt-5 border-t border-slate-800 space-y-2.5">
           <Button
             type="button"
             variant="subtle"
             size="sm"
-            onClick={handleQuickDemoFill}
-            className="w-full text-xs font-mono"
+            onClick={() => handleQuickDemoFill('anjalibandaru1430@gmail.com')}
+            className="w-full text-xs font-medium text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30"
           >
-            ⚡ 1-Click Demo Sign-in as QA Lead (Alex Vance)
+            ⚡ 1-Click Sign-in as Anjali Bandaru (QA Lead)
           </Button>
 
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={handleQuickDemoFill}
+              onClick={() => handleQuickDemoFill('anjalibandaru1430@gmail.com')}
               className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 hover:bg-slate-800 transition-colors"
             >
               <GitBranch className="w-3.5 h-3.5" />
@@ -149,7 +157,7 @@ export const LoginPage: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={handleQuickDemoFill}
+              onClick={() => handleQuickDemoFill('anjalibandaru1430@gmail.com')}
               className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 hover:bg-slate-800 transition-colors"
             >
               <span className="font-bold text-xs text-emerald-400">G</span>

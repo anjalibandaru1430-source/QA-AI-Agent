@@ -17,7 +17,7 @@ import { useProjectStore } from '../../stores/useProjectStore';
 import { useExecutionStore } from '../../stores/useExecutionStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import { useThemeStore } from '../../stores/useThemeStore';
-import { useCommandPaletteStore } from '../../stores/useCommandPaletteStore';
+import { useUserStore } from '../../stores/useUserStore';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { Link } from 'react-router-dom';
@@ -32,6 +32,7 @@ export const TopNav: React.FC<TopNavProps> = ({ onCreateProjectOpen }) => {
   const { notifications, markAllAsRead } = useNotificationStore();
   const { theme, toggleTheme } = useThemeStore();
   const { openPalette, openSearch } = useCommandPaletteStore();
+  const { currentUser } = useUserStore();
 
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isNotifDropdownOpen, setIsNotifDropdownOpen] = useState(false);
@@ -208,11 +209,11 @@ export const TopNav: React.FC<TopNavProps> = ({ onCreateProjectOpen }) => {
         {/* User Profile Avatar */}
         <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
           <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-semibold text-emerald-300">
-            AV
+            {currentUser?.initials || 'AB'}
           </div>
           <div className="hidden xl:block text-left">
-            <div className="text-xs font-medium text-slate-200">Alex Vance</div>
-            <div className="text-[10px] text-slate-400 font-mono">QA Lead</div>
+            <div className="text-xs font-medium text-slate-200">{currentUser?.name || 'Anjali Bandaru'}</div>
+            <div className="text-[10px] text-slate-400 font-mono">{currentUser?.role || 'QA Lead'}</div>
           </div>
         </div>
       </div>

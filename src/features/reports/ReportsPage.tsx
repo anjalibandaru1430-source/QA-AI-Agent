@@ -52,13 +52,15 @@ export const ReportsPage: React.FC = () => {
     }
   }, [projectId]);
 
+  const projectName = currentProject?.name || 'SauceDemo QA Project';
+
   const report = selectedReport || {
     id: 'rep_1042',
     projectId,
     executionId: 'exec_1042',
     executionNumber: 1042,
     generatedAt: new Date().toISOString(),
-    projectName: currentProject?.name || 'SauceDemo QA Project',
+    projectName: projectName,
     summary: {
       totalTests: 32,
       passed: 29,

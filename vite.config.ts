@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'apps/web/src'),
-      '@qagent/shared': path.resolve(__dirname, 'apps/web/src/shared/index.ts'),
+      '@': path.resolve(__dirname, './src'),
+      '@qagent/shared': path.resolve(__dirname, './src/shared/index.ts'),
     },
   },
   build: {

@@ -1,10 +1,10 @@
 services:
   - type: web
-    name: qagent-platform
+    name: qagent-backend
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm install --prefix apps/server && npm run build --prefix apps/server
+    startCommand: node apps/server/dist/app.js
     envVars:
       - key: NODE_ENV
         value: production

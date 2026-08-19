@@ -14,7 +14,7 @@ import {
   SAUCE_DEMO_PRD_TEXT,
 } from '@qagent/shared';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api').replace(/\/+api$/, '/api');
 
 // Helper for fetch with fallback support
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {

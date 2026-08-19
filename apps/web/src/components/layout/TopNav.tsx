@@ -18,6 +18,7 @@ import { useExecutionStore } from '../../stores/useExecutionStore';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import { useThemeStore } from '../../stores/useThemeStore';
 import { useUserStore } from '../../stores/useUserStore';
+import { useCommandPaletteStore } from '../../stores/useCommandPaletteStore';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { Link } from 'react-router-dom';

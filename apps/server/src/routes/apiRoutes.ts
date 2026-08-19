@@ -8,7 +8,7 @@ import { selfHealingAgent } from '../agents/SelfHealingAgent.js';
 import { playwrightRunner } from '../automation/playwrightRunner.js';
 import { jiraService } from '../integrations/jiraService.js';
 import { emailService } from '../integrations/emailService.js';
-import { SAUCE_DEMO_PRD_TEXT, CreateProjectSchema, EmailReportSchema, PRDDocument, Project } from '@qagent/shared';
+import { SAUCE_DEMO_PRD_TEXT, CreateProjectSchema, EmailReportSchema, PRDDocument, Project } from '../shared/index.js';
 
 export const apiRouter = Router();
 

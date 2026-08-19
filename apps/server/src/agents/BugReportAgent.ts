@@ -1,4 +1,4 @@
-import { BugReport, TestResult, FailureAnalysis } from '@qagent/shared';
+import { BugReport, TestResult, FailureAnalysis } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 

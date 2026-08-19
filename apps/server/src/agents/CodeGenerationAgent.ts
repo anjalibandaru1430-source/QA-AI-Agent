@@ -1,4 +1,4 @@
-import { PageObjectModel, TestScript } from '@qagent/shared';
+import { PageObjectModel, TestScript } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 

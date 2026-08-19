@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
-import { WebSocketMessage } from '@qagent/shared';
+import { WebSocketMessage } from '../shared/index.js';
 
 export class ExecutionWebSocketServer {
   private wss: WebSocketServer | null = null;

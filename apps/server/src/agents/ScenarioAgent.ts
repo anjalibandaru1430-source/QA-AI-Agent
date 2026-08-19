@@ -1,4 +1,4 @@
-import { TestScenario } from '@qagent/shared';
+import { TestScenario } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 

@@ -13,8 +13,8 @@ import {
   QAReport,
   AIAgentState,
   AIAgentLog,
-} from '@qagent/shared';
-import { SAUCE_DEMO_PRD_TEXT } from '@qagent/shared';
+} from '../shared/index.js';
+import { SAUCE_DEMO_PRD_TEXT } from '../shared/index.js';
 
 // In-Memory Database with default SauceDemo QA Project data
 export class DatabaseStore {

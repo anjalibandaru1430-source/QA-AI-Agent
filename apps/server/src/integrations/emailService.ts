@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { QAReport } from '@qagent/shared';
+import { QAReport } from '../shared/index.js';
 
 export class EmailService {
   public async sendReportEmail(

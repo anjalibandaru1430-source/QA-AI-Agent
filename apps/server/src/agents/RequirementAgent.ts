@@ -1,5 +1,5 @@
-import { Requirement, PRDDocument } from '@qagent/shared';
-import { RequirementAnalysisResponseSchema } from '@qagent/shared';
+import { Requirement, PRDDocument } from '../shared/index.js';
+import { RequirementAnalysisResponseSchema } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 

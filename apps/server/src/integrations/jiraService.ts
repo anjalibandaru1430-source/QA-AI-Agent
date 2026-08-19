@@ -1,4 +1,4 @@
-import { BugReport } from '@qagent/shared';
+import { BugReport } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 

@@ -1,4 +1,4 @@
-import { SelfHealingProposal } from '@qagent/shared';
+import { SelfHealingProposal } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 

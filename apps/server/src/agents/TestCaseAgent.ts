@@ -1,4 +1,4 @@
-import { TestCase } from '@qagent/shared';
+import { TestCase } from '../shared/index.js';
 import { db } from '../database/store.js';
 import { wsServer } from '../websocket/wsServer.js';
 
